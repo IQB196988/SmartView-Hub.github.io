@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartView Hub - AI-Powered Content Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom CSS for animations and special effects */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        
+        .ad-container {
+            transition: all 0.3s ease;
+        }
+        
+        .ad-container:hover {
+            transform: scale(1.02);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* PDF viewer custom style */
+        .pdf-container {
+            height: 600px;
+            overflow: hidden;
+        }
+        
+        /* Responsive video container */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Loading spinner */
+        .loader {
+            border-top-color: #3b82f6;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans antialiased">
+    <!-- Mobile Menu Button -->
+    <div class="md:hidden fixed top-4 right-4 z-50">
+        <button id="mobileMenuBtn" class="p-2 rounded-md bg-blue-600 text-white focus:outline-none">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 w-64 bg-white shadow-lg z-40 transition-transform duration-300 ease-in-out">
+        <div class="flex items-center justify-center h-16 px-4 bg-gradient-to-r from-blue-600 to-blue-500">
+            <div class="flex items-center">
+                <i class="fas fa-eye text-white text-2xl mr-2"></i>
+                <span class="text-white font-bold text-xl">SmartView Hub</span>
+            </div>
+        </div>
+        
+        <!-- Ad Space (Sidebar Top) -->
+        <div class="ad-container p-4 bg-gray-100 border-b">
+            <div class="bg-white p-3 rounded-lg shadow-sm text-center">
+                <p class="text-xs text-gray-500 mb-1">Advertisement</p>
+                <div class="h-24 flex items-center justify-center bg-gray-200 rounded">
+                    <p class="text-gray-500">Ad Space (300x250)</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#dashboard" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 group">
+                        <i class="fas fa-tachometer-alt mr-3 text-blue-500"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#gallery" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 group">
+                        <i class="fas fa-images mr-3 text-blue-500"></i>
+                        <span>Content Gallery</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#videos" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 group">
+                        <i class="fas fa-play-circle mr-3 text-blue-500"></i>
+                        <span>Video Showcase</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#documents" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 group">
+                        <i class="fas fa-file-alt mr-3 text-blue-500"></i>
+                        <span>Document Viewer</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#upload" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 group">
+                        <i class="fas fa-cloud-upload-alt mr-3 text-blue-500"></i>
+                        <span>Upload Content</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Ad Space (Sidebar Bottom) -->
+        <div class="ad-container p-4 bg-gray-100 border-t mt-auto">
+            <div class="bg-white p-3 rounded-lg shadow-sm text-center">
+                <p class="text-xs text-gray-500 mb-1">Advertisement</p>
+                <div class="h-24 flex items-center justify-center bg-gray-200 rounded">
+                    <p class="text-gray-500">Ad Space (300x250)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-64 transition-all duration-300">
+        <!-- Header -->
+        <header class="bg-white shadow-sm">
+            <div class="flex justify-between items-center px-6 py-4">
+                <h1 class="text-2xl font-semibold text-gray-800">Welcome to SmartView Hub</h1>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search content..." class="pl-10 pr-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 w-64">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    
+                    <div class="relative">
+                        <button id="userMenuBtn" class="flex items-center focus:outline-none">
+                            <img src="https://ui-avatars.com/api/?name=User+Name&background=3b82f6&color=fff" alt="User" class="w-8 h-8 rounded-full">
+                            <i class="fas fa-chevron-down ml-1 text-gray-500"></i>
+                        </button>
+                        
+                        <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">Profile</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">Settings</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">Sign out</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="p-6">
+            <!-- Ad Banner (Top) -->
+            <div class="ad-container mb-6 bg-white p-4 rounded-lg shadow-sm">
+                <div class="text-center">
+                    <p class="text-xs text-gray-500 mb-1">Advertisement</p>
+                    <div class="h-20 flex items-center justify-center bg-gray-200 rounded">
+                        <p class="text-gray-500">Banner Ad (728x90)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="mb-12 fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">Interactive Dashboard</h2>
+                    <div class="flex space-x-2">
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <i class="fas fa-sync-alt mr-2"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:border-blue-200 transition-all">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Total Content</p>
+                                <h3 class="text-2xl font-bold text-gray-800">1,248</h3>
+                            </div>
+                            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                                <i class="fas fa-box-open text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2"><span class="text-green-500">+12%</span> from last month</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:border-blue-200 transition-all">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Videos</p>
+                                <h3 class="text-2xl font-bold text-gray-800">428</h3>
+                            </div>
+                            <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                                <i class="fas fa-video text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2"><span class="text-green-500">+8%</span> from last month</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:border-blue-200 transition-all">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Images</p>
+                                <h3 class="text-2xl font-bold text-gray-800">576</h3>
+                            </div>
+                            <div class="p-3 rounded-full bg-green-100 text-green-600">
+                                <i class="fas fa-image text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2"><span class="text-green-500">+15%</span> from last month</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:border-blue-200 transition-all">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Documents</p>
+                                <h3 class="text-2xl font-bold text-gray-800">244</h3>
+                            </div>
+                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                                <i class="fas fa-file-alt text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2"><span class="text-green-500">+5%</span> from last month</p>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Recent Activity</h3>
+                        <button class="text-sm text-blue-600 hover:text-blue-800">View All</button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <img src="https://ui-avatars.com/api/?name=John+Doe&background=3b82f6&color=fff" alt="User" class="w-10 h-10 rounded-full mr-3">
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center">
+                                    <p class="font-medium text-gray-800">John Doe</p>
+                                    <span class="text-xs text-gray-500">2 hours ago</span>
+                                </div>
+                                <p class="text-sm text-gray-600">Uploaded a new video "Introduction to AI"</p>
+                                <div class="mt-1 flex space-x-2">
+                                    <span class="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-full">Video</span>
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">AI</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <img src="https://ui-avatars.com/api/?name=Jane+Smith&background=10b981&color=fff" alt="User" class="w-10 h-10 rounded-full mr-3">
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center">
+                                    <p class="font-medium text-gray-800">Jane Smith</p>
+                                    <span class="text-xs text-gray-500">5 hours ago</span>
+                                </div>
+                                <p class="text-sm text-gray-600">Shared a document "Web Development Guide"</p>
+                                <div class="mt-1 flex space-x-2">
+                                    <span class="px-2 py-1 bg-yellow-50 text-yellow-600 text-xs rounded-full">PDF</span>
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">Web</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Content Gallery Section -->
+            <section id="gallery" class="mb-12 fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">Content Gallery</h2>
+                    <div class="flex space-x-2">
+                        <div class="relative">
+                            <select class="appearance-none bg-white border rounded-md pl-3 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                                <option>All Categories</option>
+                                <option>Images</option>
+                                <option>Videos</option>
+                                <option>Documents</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <i class="fas fa-filter mr-2"></i> Filter
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="content-card bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="relative">
+                            <img src="https://source.unsplash.com/random/600x400?nature" alt="Content" class="w-full h-48 object-cover">
+                            <div class="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                                <i class="fas fa-image mr-1"></i> Image
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-1">Beautiful Nature</h3>
+                            <p class="text-sm text-gray-600 mb-3">High resolution nature photography</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">2 days ago</span>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    View <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="content-card bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="relative">
+                            <img src="https://source.unsplash.com/random/600x400?tech" alt="Content" class="w-full h-48 object-cover">
+                            <div class="absolute top-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full">
+                                <i class="fas fa-image mr-1"></i> Image
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-1">Modern Technology</h3>
+                            <p class="text-sm text-gray-600 mb-3">Latest tech gadgets and devices</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">1 week ago</span>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    View <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="content-card bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="relative">
+                            <img src="https://source.unsplash.com/random/600x400?city" alt="Content" class="w-full h-48 object-cover">
+                            <div class="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full">
+                                <i class="fas fa-image mr-1"></i> Image
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-1">Urban Landscape</h3>
+                            <p class="text-sm text-gray-600 mb-3">Cityscapes from around the world</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">3 days ago</span>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    View <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="content-card bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="relative">
+                            <img src="https://source.unsplash.com/random/600x400?food" alt="Content" class="w-full h-48 object-cover">
+                            <div class="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded-full">
+                                <i class="fas fa-image mr-1"></i> Image
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-1">Delicious Cuisine</h3>
+                            <p class="text-sm text-gray-600 mb-3">Gourmet food photography</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">5 days ago</span>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    View <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center">
+                    <button class="px-6 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-plus mr-2"></i> Load More
+                    </button>
+                </div>
+            </section>
+            
+            <!-- Video Showcase Section -->
+            <section id="videos" class="mb-12 fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">Video Showcase</h2>
+                    <div class="flex space-x-2">
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <i class="fas fa-plus mr-2"></i> Add Video
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-2">Introduction to SmartView Hub</h3>
+                            <p class="text-sm text-gray-600 mb-3">Learn how to use our platform to view and manage all your content in one place.</p>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <i class="fas fa-eye text-gray-500 mr-1 text-sm"></i>
+                                    <span class="text-xs text-gray-500">1,245 views</span>
+                                </div>
+                                <span class="text-xs text-gray-500">2 weeks ago</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/yPYZpwSpKmA" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-2">Advanced Content Management</h3>
+                            <p class="text-sm text-gray-600 mb-3">Discover advanced features for organizing and sharing your content.</p>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <i class="fas fa-eye text-gray-500 mr-1 text-sm"></i>
+                                    <span class="text-xs text-gray-500">892 views</span>
+                                </div>
+                                <span class="text-xs text-gray-500">3 weeks ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <div class="content-card bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="relative">
+                            <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" alt="Video Thumbnail" class="w-full h-40 object-cover">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-12 h-12 bg-white bg-opacity-80 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-play text-blue-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                12:34
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-1">Getting Started Guide</h3>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-xs text-gray-500">1 month ago</span>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    Watch <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="content-card bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="relative">
+                            <img src="https://img.youtube.com/vi/yPYZpwSpKmA/maxresdefault.jpg" alt="Video Thumbnail" class="w-full h-40 object-cover">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-12 h-12 bg-white bg-opacity-80 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-play text-blue-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                8:45
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-1">Content Upload Tutorial</h3>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-xs text-gray-500">3 weeks ago</span>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    Watch <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="content-card bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="relative">
+                            <img src="https://img.youtube.com/vi/7NOSDKb0HlU/maxresdefault.jpg" alt="Video Thumbnail" class="w-full h-40 object-cover">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-12 h-12 bg-white bg-opacity-80 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-play text-blue-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                15:22
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-1">Advanced Settings</h3>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-xs text-gray-500">2 weeks ago</span>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    Watch <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="content-card bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="relative">
+                            <img src="https://img.youtube.com/vi/9YffrCViTVk/maxresdefault.jpg" alt="Video Thumbnail" class="w-full h-40 object-cover">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-12 h-12 bg-white bg-opacity-80 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-play text-blue-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                6:18
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-1">Mobile App Overview</h3>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-xs text-gray-500">1 week ago</span>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    Watch <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Document Viewer Section -->
+            <section id="documents" class="mb-12 fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">Document Viewer</h2>
+                    <div class="flex space-x-2">
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <i class="fas fa-upload mr-2"></i> Upload PDF
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 mb-6">
+                    <div class="p-4 border-b">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-medium text-gray-800">Sample Document.pdf</h3>
+                            <div class="flex space-x-2">
+                                <button class="p-2 text-gray-500 hover:text-blue-600 rounded-full hover:bg-blue-50">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="p-2 text-gray-500 hover:text-blue-600 rounded-full hover:bg-blue-50">
+                                    <i class="fas fa-share-alt"></i>
+                                </button>
+                                <button class="p-2 text-gray-500 hover:text-blue-600 rounded-full hover:bg-blue-50">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pdf-container">
+                        <iframe src="https://mozilla.github.io/pdf.js/web/viewer.html?file=https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" frameborder="0" class="w-full h-full"></iframe>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <div class="content-card bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="p-4 border-b">
+                            <div class="flex items-center justify-center bg-gray-100 rounded-lg h-32">
+                                <i class="fas fa-file-pdf text-5xl text-red-500"></i>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-1">User Manual.pdf</h3>
+                            <p class="text-xs text-gray-500 mb-2">2.4 MB • Updated 3 days ago</p>
+                            <div class="flex justify-between items-center">
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    View <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="content-card bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="p-4 border-b">
+                            <div class="flex items-center justify-center bg-gray-100 rounded-lg h-32">
+                                <i class="fas fa-file-word text-5xl text-blue-500"></i>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-1">Report.docx</h3>
+                            <p class="text-xs text-gray-500 mb-2">1.8 MB • Updated 1 week ago</p>
+                            <div class="flex justify-between items-center">
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    View <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="content-card bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="p-4 border-b">
+                            <div class="flex items-center justify-center bg-gray-100 rounded-lg h-32">
+                                <i class="fas fa-file-excel text-5xl text-green-500"></i>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-1">Data.xlsx</h3>
+                            <p class="text-xs text-gray-500 mb-2">3.2 MB • Updated 2 weeks ago</p>
+                            <div class="flex justify-between items-center">
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    View <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="content-card bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="p-4 border-b">
+                            <div class="flex items-center justify-center bg-gray-100 rounded-lg h-32">
+                                <i class="fas fa-file-powerpoint text-5xl text-orange-500"></i>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-1">Presentation.pptx</h3>
+                            <p class="text-xs text-gray-500 mb-2">5.7 MB • Updated 4 days ago</p>
+                            <div class="flex justify-between items-center">
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    View <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Upload Content Section -->
+            <section id="upload" class="mb-12 fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">Upload Content</h2>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+                    <div class="p-6">
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-all duration-300">
+                            <div class="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                                <i class="fas fa-cloud-upload-alt text-blue-600 text-2xl"></i>
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-800 mb-1">Drag and drop files here</h3>
+                            <p class="text-sm text-gray-600 mb-4">or</p>
+                            <label for="file-upload" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                                <i class="fas fa-folder-open mr-2"></i> Browse Files
+                                <input id="file-upload" type="file" class="hidden" multiple>
+                            </label>
+                            <p class="text-xs text-gray-500 mt-3">Supports: JPG, PNG, PDF, MP4, DOCX (Max 100MB)</p>
+                        </div>
+                        
+                        <div class="mt-8">
+                            <h4 class="font-medium text-gray-800 mb-4">Upload Queue</h4>
+                            
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-image text-blue-500 mr-3 text-xl"></i>
+                                        <div>
+                                            <p class="font-medium text-gray-800">nature.jpg</p>
+                                            <p class="text-xs text-gray-500">2.4 MB</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-24 bg-gray-200 rounded-full h-2 mr-3">
+                                            <div class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
+                                        </div>
+                                        <i class="fas fa-check-circle text-green-500"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-file-pdf text-red-500 mr-3 text-xl"></i>
+                                        <div>
+                                            <p class="font-medium text-gray-800">document.pdf</p>
+                                            <p class="text-xs text-gray-500">5.7 MB</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-24 bg-gray-200 rounded-full h-2 mr-3">
+                                            <div class="bg-blue-500 h-2 rounded-full" style="width: 65%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-500">65%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-video text-purple-500 mr-3 text-xl"></i>
+                                        <div>
+                                            <p class="font-medium text-gray-800">tutorial.mp4</p>
+                                            <p class="text-xs text-gray-500">48.2 MB</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-24 bg-gray-200 rounded-full h-2 mr-3">
+                                            <div class="bg-blue-500 h-2 rounded-full" style="width: 12%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-500">12%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8">
+                            <h4 class="font-medium text-gray-800 mb-4">Content Details</h4>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                                    <input type="text" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter content title">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                    <select class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option>Select category</option>
+                                        <option>Images</option>
+                                        <option>Videos</option>
+                                        <option>Documents</option>
+                                        <option>Other</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                    <textarea class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="Enter content description"></textarea>
+                                </div>
+                                
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+                                    <input type="text" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Add tags (comma separated)">
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Make content public</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 flex justify-end space-x-3">
+                                <button class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    Cancel
+                                </button>
+                                <button class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <i class="fas fa-save mr-2"></i> Save Content
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Ad Banner (Bottom) -->
+            <div class="ad-container mb-6 bg-white p-4 rounded-lg shadow-sm">
+                <div class="text-center">
+                    <p class="text-xs text-gray-500 mb-1">Advertisement</p>
+                    <div class="h-20 flex items-center justify-center bg-gray-200 rounded">
+                        <p class="text-gray-500">Banner Ad (728x90)</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-8">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">SmartView Hub</h3>
+                        <p class="text-gray-400 text-sm">Your all-in-one platform for viewing and managing digital content with AI-powered features.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm">Home</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm">Features</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm">Pricing</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm">Blog</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Support</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm">Help Center</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm">Contact Us</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm">Privacy Policy</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white text-sm">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
+                        <div class="flex space-x-4 mb-4">
+                            <a href="#" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-blue-600">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-blue-400">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-red-600">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                            <a href="#" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center hover:bg-purple-600">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
+                        <p class="text-gray-400 text-sm">Subscribe to our newsletter</p>
+                        <div class="mt-2 flex">
+                            <input type="email" placeholder="Your email" class="px-3 py-2 text-sm text-gray-800 rounded-l focus:outline-none w-full">
+                            <button class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-r text-sm">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ad Space (Footer) -->
+                <div class="ad-container mt-8 pt-6 border-t border-gray-700">
+                    <div class="bg-gray-700 p-3 rounded-lg text-center">
+                        <p class="text-xs text-gray-400 mb-1">Advertisement</p>
+                        <div class="h-24 flex items-center justify-center bg-gray-600 rounded">
+                            <p class="text-gray-400">Ad Space (728x90)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 pt-6 border-t border-gray-700 text-center text-sm text-gray-400">
+                    <p>&copy; 2023 SmartView Hub. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('translate-x-0');
+        });
+        
+        // User menu toggle
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userMenu = document.getElementById('userMenu');
+        
+        userMenuBtn.addEventListener('click', () => {
+            userMenu.classList.toggle('hidden');
+        });
+        
+        // Close user menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
+                userMenu.classList.add('hidden');
+            }
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 20,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    sidebar.classList.remove('translate-x-0');
+                }
+            });
+        });
+        
+        // File upload preview (simplified example)
+        const fileUpload = document.getElementById('file-upload');
+        if (fileUpload) {
+            fileUpload.addEventListener('change', (e) => {
+                const files = e.target.files;
+                if (files.length > 0) {
+                    alert(`Selected ${files.length} file(s) for upload`);
+                    // In a real app, you would handle file previews and upload here
+                }
+            });
+        }
+        
+        // Add fade-in animation to sections when they come into view
+        const fadeElements = document.querySelectorAll('.fade-in');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        fadeElements.forEach(el => {
+            el.style.opacity = 0;
+            el.style.transform = 'translateY(20px)';
+            observer.observe(el);
+        });
+        
+        // Simulate loading for demo purposes
+        setTimeout(() => {
+            document.querySelectorAll('.loader').forEach(el => {
+                el.style.display = 'none';
+            });
+        }, 1500);
+    </script>
+</body>
+</html>
